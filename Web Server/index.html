@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ESP Web Server</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h2>ESP Web Server</h2>
+    <p><span id="textSliderValue">0</span></p>
+    <p><input type="text" placeholder="192.168.0.0" id="ipAddress"></p>
+    <p id="errorMsg"></p>
+    <p><input type="range" oninput="updateSliderPWM(this)" id="pwmSlider" min="0" max="1023" value="%SLIDERVALUE%"
+            step="1" class="slider"></p>
+    <script src="script.js"></script>
+</body>
+
+</html>
