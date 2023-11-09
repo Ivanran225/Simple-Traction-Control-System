@@ -6,7 +6,7 @@ function updateSliderPWM(element) {
 
     if (ip.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/)) {
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", `https://${ip}/slider?value=${sliderValue}`, true);
+        xhr.open("GET", `http://${ip}/slider?value=${sliderValue}`, true);
         xhr.send();
         errorMsg.innerHTML = "";
     } else {
