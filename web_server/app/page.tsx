@@ -21,7 +21,7 @@ export default function Button() {
         justify-content: center;
         align-items: center;
         height: 100vh;
-        background-color: #122838;
+        background-color: #8FDECB;
         flex-direction: column;
         gap: 20px;
       }
@@ -29,15 +29,18 @@ export default function Button() {
         display: flex;
         flex-direction: column;
         gap: 30px;
-        padding: 30px;
-        background-color: #223848; // Light grey background
+        padding: 40px;
+        background-color: #FCF1D5;
         border-radius: 40px;
-        background: #223848;
-        box-shadow:  29px 29px 30px #1d303d,
-                   -29px -29px 30px #274053;
+        background: #FCF1D2;
+        box-shadow:  29px 29px 10px #58A8A7, 
+        inset 4px 4px 5px 1px rgba(255, 255, 255, 0.5), 
+        inset -4px -4px 5px #000000;
+        border: 5px solid #150B3D;
       }
       .button {
-        background-color: #324858;;
+        background-color: #273250;
+        border: 5px solid #150B3D;
         border-radius: 50px;
         padding: 20px;
         width: 400px;
@@ -47,11 +50,11 @@ export default function Button() {
         text-align: left;
         cursor: pointer;
         transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
-        box-shadow: 12px 12px 10px 2px #000000, inset -2px -2px 5px #000000, inset 1px 1px 5px #ffffff; 
+        box-shadow: 10px 10px 5px 2px #C5B7A8, inset -4px -4px 2px #1B1538, inset 4px 4px 2px #435472; 
       }
       .button:active {
         box-shadow: 7px 7px 10px 1px #000000, inset -1px -1px 5px #000000, inset 2px 2px 5px #ffffff;
-        transform: scale(0.95);
+        transform: scale(0.97);
       }
     `}</style>
     </div>
