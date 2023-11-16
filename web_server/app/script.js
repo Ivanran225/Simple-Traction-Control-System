@@ -13,11 +13,10 @@ function updateSliderPWM(element) {
         errorMsg.innerHTML = "Invalid IP address";
     }
 }
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Add animation class dynamically after DOM is loaded
-        document.querySelectorAll('.animate-lightning').forEach(function (button) {
-            button.classList.add('animate-lightning');
-        });
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Add animation class dynamically after DOM is loaded
+    document.querySelectorAll('.button').forEach(function (button) {
+        button.classList.add('animate-lightning');
     });
-</script>
+});
