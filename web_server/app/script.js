@@ -1,6 +1,7 @@
 function updateSliderPWM(element) {
     let sliderValue = document.getElementById("pwmSlider").value;
     let ip = document.getElementById("ipAddress").value;
+    console.log(ip);
     let errorMsg = document.getElementById("errorMsg");
     document.getElementById("textSliderValue").innerHTML = sliderValue;
 
@@ -13,10 +14,3 @@ function updateSliderPWM(element) {
         errorMsg.innerHTML = "Invalid IP address";
     }
 }
-
-document.addEventListener('DOMContentLoaded', function () {
-    // Add animation class dynamically after DOM is loaded
-    document.querySelectorAll('.button').forEach(function (button) {
-        button.classList.add('animate-lightning');
-    });
-});

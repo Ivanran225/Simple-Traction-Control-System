@@ -1,11 +1,47 @@
 'use client'
 import Image from 'next/image'
-//fd6d5d
-export default function Button() {
+import React, { useState, useRef } from 'react';
+
+export default function Button() {  
+  const [ipAddress, setIpAddress] = useState('');
+  const sliderRef = useRef<HTMLInputElement>(null); // Specify the type as HTMLInputElement
+  const errorMsgRef = useRef<HTMLElement>(null); // Specify the type as HTMLElement
+  const textSliderValueRef = useRef<HTMLElement>(null); // Specify the type as HTMLElement
+
+  const handleIpChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIpAddress(event.target.value);
+  };
+
+  const handleButtonClick = () => {
+    console.log('shalom');
+  };
+
+  const updateSliderPWM = () => {
+    let sliderValue = sliderRef.current ? sliderRef.current.value : '';
+    console.log(sliderValue);
+    let ip = ipAddress;
+    let errorMsg = errorMsgRef.current;
+    if (textSliderValueRef.current) {
+      textSliderValueRef.current.innerHTML = sliderValue;
+    }
+
+    if (ip.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/)) {
+      var xhr = new XMLHttpRequest();
+      xhr.open("GET", `http://${ip}/slider?value=${sliderValue}`, true);
+      xhr.send();
+      if (errorMsg) {
+        errorMsg.innerHTML = "";
+      }
+    } else {
+      if (errorMsg) {
+        errorMsg.innerHTML = "Invalid IP address";
+      }
+    }
+  };
   return (
-    <div className="button-container">
+    <div className="button-container" style={{ backgroundColor:'#8FDECB'}}>
       <div className="button-box">
-        <button className="button" style={{ color: '#FFA500' }}>
+        <button className= "button" style={{ color: '#FFA500' }} onClick={handleButtonClick}>
           SHALOM
         </button>
         <button className="button" style={{ color: '#fd6d5d' }}>
@@ -14,25 +50,49 @@ export default function Button() {
         <button className="button" style={{ color: '#49B5BA' }}>
           SHALOM
         </button>
-        
+      
+        <input
+          type="text"
+          value={ipAddress}
+          onChange={handleIpChange}
+          placeholder="IP Address"
+          style={{
+            backgroundColor: '#273250',
+            border: '5px solid #150B3D',
+            borderRadius: '50px',
+            padding: '20px',
+            width: '350px',
+            color: 'orange',
+            display: 'inline-block',
+            fontSize: '20px',
+            textAlign: 'left',
+            cursor: 'pointer',
+            transition: 'background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease',
+            boxShadow: '10px 10px 5px 2px #C5B7A8, inset -4px -4px 2px #1B1538, inset 4px 4px 2px #435472',
+          }}
+        />
         <input
           type="range"
-          min="-100"
-          max="0"
-          defaultValue="0"
+          min="-90"
+          max="10"
+          defaultValue="10"
           className="slider"
           style={{
             appearance: 'none',
-            width: '100%',
-            height: '60px',
+            width: '370px',
+            height: '65px',
             background: '#273250',
             outline: 'none',
             opacity: '1',
             transition: '.2s',
+            backgroundClip: 'padding-box',
+            padding: '10 10px',
           }}
-/>
-
+          ref={sliderRef}
+          onChange={updateSliderPWM} 
+          />
       </div>
+
       <style jsx>{`
       .button-container {
         display: flex;
@@ -59,7 +119,7 @@ export default function Button() {
         position: relative;
       }    
       .slider {
-        width: 100%; /* Full-width */
+        width: 400px; /* Full-width */
         height: 20px; /* Specified height */
         outline: none; /* Remove outline */
         opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
@@ -69,24 +129,8 @@ export default function Button() {
         border-radius: 50px; /* Rounded edges */
         box-shadow: 10px 10px 5px 2px #C5B7A8, inset -4px -4px 2px #1B1538, inset 4px 4px 2px #435472; 
         position: relative;
-        z-index: 1;
       }
-      .slider::before {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 0;
-        width: 100%;
-        height: 2px;
-        background: repeating-linear-gradient(
-          to right,
-          #150B3D 0,
-          #150B3D 20px,
-          transparent 20px,
-          transparent 40px
-          );
-        z-index: 2;
-      }
+
       .slider::-webkit-slider-thumb {
         z-index: 3;
         -webkit-appearance: none; /* Override default look */
@@ -100,10 +144,20 @@ export default function Button() {
         cursor: pointer; /* Cursor on hover */
         margin: 0; /* Remove default margin */
         box-shadow: 2px 2px 2px 1px #000;
+        transform: translateY(-35%);
       }
       .slider:hover {
         opacity: 1; /* Fully visible on hover */
       }
+      .slider::-webkit-slider-runnable-track {
+        height: 10px; // Set the track height
+        background: #150B3D; // Set the track color
+        border-radius: 25px; // Round the corners
+        box-shadow: inset 4px 4px 2px #000;
+        margin-left: 20px;
+        margin-right: 20px;
+      }
+
       .button {
         background-color: #273250;
         border: 5px solid #150B3D;
