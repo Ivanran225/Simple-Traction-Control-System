@@ -1,26 +1,24 @@
 'use client'
+import { redirect } from 'next/dist/server/api-utils';
 import Image from 'next/image'
 import React, { useState, useRef } from 'react';
 
 export default function Button() {  
   const [ipAddress, setIpAddress] = useState('');
   const sliderRef = useRef<HTMLInputElement>(null); // Specify the type as HTMLInputElement
-  const errorMsgRef = useRef<HTMLElement>(null); // Specify the type as HTMLElement
   const textSliderValueRef = useRef<HTMLElement>(null); // Specify the type as HTMLElement
 
   const handleIpChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIpAddress(event.target.value);
   };
 
-  const handleButtonClick = () => {
+  const handleButton1Click = () => {
     console.log('shalom');
   };
 
   const updateSliderPWM = () => {
     let sliderValue = sliderRef.current ? sliderRef.current.value : '';
-    console.log(sliderValue);
     let ip = ipAddress;
-    let errorMsg = errorMsgRef.current;
     if (textSliderValueRef.current) {
       textSliderValueRef.current.innerHTML = sliderValue;
     }
@@ -29,19 +27,15 @@ export default function Button() {
       var xhr = new XMLHttpRequest();
       xhr.open("GET", `http://${ip}/slider?value=${sliderValue}`, true);
       xhr.send();
-      if (errorMsg) {
-        errorMsg.innerHTML = "";
-      }
+      console.log(sliderValue);
     } else {
-      if (errorMsg) {
-        errorMsg.innerHTML = "Invalid IP address";
-      }
+      console.log("invalid ip");
     }
   };
   return (
     <div className="button-container" style={{ backgroundColor:'#8FDECB'}}>
       <div className="button-box">
-        <button className= "button" style={{ color: '#FFA500' }} onClick={handleButtonClick}>
+        <button className= "button" style={{ color: '#FFA500' }} onClick={handleButton1Click}>
           SHALOM
         </button>
         <button className="button" style={{ color: '#fd6d5d' }}>
@@ -50,7 +44,7 @@ export default function Button() {
         <button className="button" style={{ color: '#49B5BA' }}>
           SHALOM
         </button>
-      
+
         <input
           type="text"
           value={ipAddress}
@@ -73,8 +67,8 @@ export default function Button() {
         />
         <input
           type="range"
-          min="-90"
-          max="10"
+          min="-100"
+          max="0"
           defaultValue="10"
           className="slider"
           style={{

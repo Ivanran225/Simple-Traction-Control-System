@@ -1,10 +1,9 @@
-//cambiar nombre del txt a .js
-
 // Import required libraries
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-
+#include <WiFiClientSecure.h>
+WiFiClientSecure client;
 // Define the pins for rear and front wheel speed sensors
 const int rearSensorPin = 2;  // Use the appropriate pin number
 const int frontSensorPin = 3; // Use the appropriate pin number
@@ -116,6 +115,32 @@ void setup(){
   
   // Start server
   server.begin();
+  
+  if (!client.connect(server, 443)) {
+    Serial.println("Connection failed!");
+    return;
+  }
+
+  // Send a GET request
+  String request = String("GET ") + "/slider?value="+sliderValue + " HTTP/1.1\r\n" +
+                   "Host: " + server + "\r\n" +
+                   "Connection: close\r\n\r\n";
+  client.print(request);
+
+  // Wait for the server's response
+  while (client.connected()) {
+    String line = client.readStringUntil('\n');
+    if (line == "\r") {
+      break;
+    }
+  }
+
+  // Read the server's response
+  while (client.available()) {
+    String line = client.readStringUntil('\n');
+    Serial.println(line);
+  }
+}
 }
   
 void loop() {
