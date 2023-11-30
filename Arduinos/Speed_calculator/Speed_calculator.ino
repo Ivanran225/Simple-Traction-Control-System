@@ -9,7 +9,6 @@ unsigned long startTime;   // Variable to store the start time
 unsigned long endTime;     // Variable to store the end time
 unsigned long interval = 1000;  // Time interval in milliseconds (0.5 seconds)
 int triggerCount = 0;      // Variable to store the number of sensor triggers
-int throtle;
 
 int sensorValue;          // Variable to store the sensor value
 int previousSensorValue;  // Variable to store the previous sensor value
@@ -26,6 +25,7 @@ void setup() {
   pinMode(enablePin, OUTPUT);
   pinMode(in1Pin, OUTPUT);
   pinMode(in2Pin, OUTPUT);
+  pinMode(13, OUTPUT);
   previousSensorValue = analogRead(sensorPin);  // Initialize previousSensorValue
 }
 
@@ -61,6 +61,9 @@ void speed_sensor() {
 
     // Increment the trigger count
     triggerCount++;
+    digitalWrite(13, HIGH);
+    delay(50);
+    digitalWrite(13, LOW);
   }
 
   // Check if the time interval has passed
@@ -74,20 +77,26 @@ void speed_sensor() {
 
   // Update the previous sensor value
   previousSensorValue = sensorValue;
-  delay(50);
+  //delay(50);
 }
 
 
 void motors() {
   if (Serial.available()) {
-    throtle = Serial.parseInt();
   }
-
+  int throtle = Serial.parseInt();
   //int pwmValue = map(throtle, 0, 100, 0, 255);
   // Set the motor speed
-  analogWrite(enablePin,0);
-  digitalWrite(in1Pin, HIGH);
-  digitalWrite(in2Pin, HIGH);
+  if(throtle > 0){
+    analogWrite(enablePin, throtle);
+    digitalWrite(in1Pin, HIGH);
+    digitalWrite(in2Pin, HIGH);
+  }
+  if(throtle == 1){
+    analogWrite(enablePin, throtle);
+    digitalWrite(in1Pin, LOW);
+    digitalWrite(in2Pin, LOW);
+  }
 
   //Serial.println(throtle);  
 }
