@@ -1,7 +1,6 @@
 const int sensorPin = A0;
 const int triggerThresholdLow = 200;
 const int triggerThresholdHigh = 800;
-int throtle;
 const int enablePin = 9;   // PWM pin connected to ENA on the L298N
 const int in1Pin = 8;      // Input 1 pin connected to IN1 on the L298N
 const int in2Pin = 7;      // Input 2 pin connected to IN2 on the L298N
@@ -10,6 +9,7 @@ unsigned long startTime;   // Variable to store the start time
 unsigned long endTime;     // Variable to store the end time
 unsigned long interval = 1000;  // Time interval in milliseconds (0.5 seconds)
 int triggerCount = 0;      // Variable to store the number of sensor triggers
+int throtle;
 
 int sensorValue;          // Variable to store the sensor value
 int previousSensorValue;  // Variable to store the previous sensor value
@@ -48,14 +48,14 @@ int smoothValue(int rawValue) {
 
   return average;
 }
-void speed_sensor(){
-
+void speed_sensor() {
   int sensorValue = analogRead(sensorPin);
+  
   // Update the previous sensor value
   previousSensorValue = sensorValue;
 
   // Check if the sensor is triggered (from less than 200 to more than 800)
-  if (sensorValue < triggerThresholdLow && previousSensorValue > triggerThresholdHigh) {
+  if ((sensorValue < triggerThresholdLow) && (previousSensorValue > triggerThresholdHigh || previousSensorValue == 0)) {
     // Record the start time when the sensor is triggered
     startTime = millis();
 
@@ -64,32 +64,32 @@ void speed_sensor(){
   }
 
   // Check if the time interval has passed
-   if (millis() - lastTriggerTime >= interval) {
+  if (millis() - lastTriggerTime >= interval) {
     // Display and reset the trigger count
     Serial.println(triggerCount);
 
     triggerCount = 0;  // Reset the trigger count
     lastTriggerTime = millis();   // Record the current time
-
-    
   }
+
   // Update the previous sensor value
   previousSensorValue = sensorValue;
-
+  delay(50);
 }
-void motors() {
 
+
+void motors() {
   if (Serial.available()) {
     throtle = Serial.parseInt();
   }
-  // Ensure the speed value is within the valid range (0 to 100)
-  speed = constrain(throtle, 0, 100);
 
   //int pwmValue = map(throtle, 0, 100, 0, 255);
   // Set the motor speed
-  analogWrite(enablePin, 0);
+  analogWrite(enablePin,0);
   digitalWrite(in1Pin, HIGH);
   digitalWrite(in2Pin, HIGH);
+
+  //Serial.println(throtle);  
 }
 void basora(){
   // Add any other code you need to run in the loop
@@ -123,7 +123,6 @@ void basora(){
 }
 
 void loop() {
-  //speed_sensor();
+  speed_sensor();
   motors();
-  Serial.println(throtle);  
 }
