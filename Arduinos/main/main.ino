@@ -113,14 +113,6 @@ void setup(){
     request->send(200, "text/plain", "OK");
   });
   
-  // Start server
-  server.begin();
-  
-  if (!client.connect(server, 443)) {
-    Serial.println("Connection failed!");
-    return;
-  }
-
   // Send a GET request
   String request = String("GET ") + "/slider?value="+sliderValue + " HTTP/1.1\r\n" +
                    "Host: " + server + "\r\n" +

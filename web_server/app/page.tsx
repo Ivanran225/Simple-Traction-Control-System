@@ -19,9 +19,6 @@ export default function Button() {
   const updateSliderPWM = () => {
     let sliderValue = sliderRef.current ? sliderRef.current.value : '';
     let ip = ipAddress;
-    if (textSliderValueRef.current) {
-      textSliderValueRef.current.innerHTML = sliderValue;
-    }
 
     if (ip.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/)) {
       var xhr = new XMLHttpRequest();
@@ -33,7 +30,7 @@ export default function Button() {
     }
   };
   return (
-    <div className="button-container" style={{ backgroundColor:'#8FDECB'}}>
+    <div className="button-container" style={{ backgroundColor:'#000000'}}>
       <div className="button-box">
         <button className= "button" style={{ color: '#FFA500' }} onClick={handleButton1Click}>
           SHALOM
@@ -73,7 +70,7 @@ export default function Button() {
           className="slider"
           style={{
             appearance: 'none',
-            width: '370px',
+            width: '385',
             height: '65px',
             background: '#273250',
             outline: 'none',
