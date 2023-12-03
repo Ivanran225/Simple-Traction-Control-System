@@ -1,18 +1,8 @@
-const int sensorPin = A0;
-const int triggerThresholdLow = 200;
-const int triggerThresholdHigh = 800;
+int sensor_pin = 2;
 const int enablePin = 9;   // PWM pin connected to ENA on the L298N
 const int in1Pin = 8;      // Input 1 pin connected to IN1 on the L298N
 const int in2Pin = 7;      // Input 2 pin connected to IN2 on the L298N
-unsigned long lastTriggerTime = 0;  // Variable to store the last trigger time
-unsigned long startTime;   // Variable to store the start time
-unsigned long endTime;     // Variable to store the end time
-unsigned long interval = 1000;  // Time interval in milliseconds (0.5 seconds)
-int triggerCount = 0;      // Variable to store the number of sensor triggers
 
-int sensorValue;          // Variable to store the sensor value
-int previousSensorValue;  // Variable to store the previous sensor value
-float speed;              // Variable to store the calculated speed
 const int numReadings = 10;  // Number of readings to average
 int readings[numReadings];   // Array to store sensor readings
 int index = 0;               // Index for the current reading
@@ -25,66 +15,54 @@ void setup() {
   pinMode(enablePin, OUTPUT);
   pinMode(in1Pin, OUTPUT);
   pinMode(in2Pin, OUTPUT);
-  pinMode(13, OUTPUT);
-  previousSensorValue = analogRead(sensorPin);  // Initialize previousSensorValue
+  pinMode(sensor_pin, INPUT);
+
 }
 
+void average_value(){
+  const int numReadings = 0;
+  int readings[numReadings];   // Array to store readings
+  int index = 0;               // Index for the current reading
 
-int smoothValue(int rawValue) {
-  // Subtract the oldest reading from the total
-  total = total - readings[index];
-  
-  // Add the new reading to the total
-  total = total + rawValue;
+  int averageValue(int sensorPin) {
+    // Read the new sensor value and store it in the array
+    readings[index] = digitalRead(sensorPin);
 
-  // Store the new reading in the array
-  readings[index] = rawValue;
-
-  // Move to the next index
-  index = (index + 1) % numReadings;
-
+    // Move to the next index in the array
+    index = (index + 1) % numReadings;
+    numReadings++;
+    // Calculate the sum of all readings
+    int sum = 0;
+    for (int i = 0; i < numReadings; i++) {
+      sum += readings[i];
+    }
+  }
   // Calculate the average
-  int average = total / numReadings;
-
-  return average;
+  return sum / numReadings;
 }
+
+
+
 void speed_sensor() {
-  int sensorValue = analogRead(sensorPin);
-  
-  // Update the previous sensor value
-  previousSensorValue = sensorValue;
-
-  // Check if the sensor is triggered (from less than 200 to more than 800)
-  if ((sensorValue < triggerThresholdLow) && (previousSensorValue > triggerThresholdHigh || previousSensorValue == 0)) {
-    // Record the start time when the sensor is triggered
-    startTime = millis();
-
-    // Increment the trigger count
-    triggerCount++;
-    digitalWrite(13, HIGH);
-    delay(50);
-    digitalWrite(13, LOW);
+  static unsigned long start_time = 0;
+  static unsigned long stop_time = 0;
+  int average_time;
+  int sensor_state = digitalRead(sensor_pin);
+  if (sensor_state == LOW) {
+    start_time = millis();
+  } else if (sensor_state == HIGH) {
+    stop_time = millis();
+    unsigned long time_counted = stop_time - start_time;
+    average_time = average_value(time_counted);
+    Serial.println(average_time);
+    time_counted = 0;
   }
-
-  // Check if the time interval has passed
-  if (millis() - lastTriggerTime >= interval) {
-    // Display and reset the trigger count
-    Serial.println(triggerCount);
-
-    triggerCount = 0;  // Reset the trigger count
-    lastTriggerTime = millis();   // Record the current time
-  }
-
-  // Update the previous sensor value
-  previousSensorValue = sensorValue;
-  //delay(50);
+  delay(50);
 }
 
 
 void motors() {
-  if (Serial.available()) {
-  }
-  int throtle = Serial.parseInt();
+  int throtle = 200;// = Serial.parseInt(); //Parseint tarda mucho
   //int pwmValue = map(throtle, 0, 100, 0, 255);
   // Set the motor speed
   if(throtle > 0){
