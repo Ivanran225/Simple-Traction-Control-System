@@ -3,8 +3,6 @@ const int enablePin = 9;   // PWM pin connected to ENA on the L298N
 const int in1Pin = 8;      // Input 1 pin connected to IN1 on the L298N
 const int in2Pin = 7;      // Input 2 pin connected to IN2 on the L298N
 
-const int numReadings = 10;  // Number of readings to average
-int readings[numReadings];   // Array to store sensor readings
 int index = 0;               // Index for the current reading
 int total = 0;               // Running total of readings
 int smoothedValue = 0;       // Smoothed sensor value
@@ -19,45 +17,44 @@ void setup() {
 
 }
 
-void average_value(){
-  const int numReadings = 0;
-  int readings[numReadings];   // Array to store readings
-  int index = 0;               // Index for the current reading
-
-  int averageValue(int sensorPin) {
-    // Read the new sensor value and store it in the array
-    readings[index] = digitalRead(sensorPin);
-
-    // Move to the next index in the array
-    index = (index + 1) % numReadings;
-    numReadings++;
-    // Calculate the sum of all readings
-    int sum = 0;
-    for (int i = 0; i < numReadings; i++) {
-      sum += readings[i];
-    }
-  }
-  // Calculate the average
-  return sum / numReadings;
-}
-
-
-
 void speed_sensor() {
-  static unsigned long start_time = 0;
-  static unsigned long stop_time = 0;
-  int average_time;
+  static unsigned long start_time_sensor = 0;
+  static unsigned long start_time_average = 0;
+  unsigned long stop_time_sensor;
+  unsigned long stop_time_average;
+  unsigned long time_counted;
+  int NumReadings;
+  unsigned long Readings;
+  unsigned long Average;
+  
   int sensor_state = digitalRead(sensor_pin);
+
   if (sensor_state == LOW) {
-    start_time = millis();
-  } else if (sensor_state == HIGH) {
-    stop_time = millis();
-    unsigned long time_counted = stop_time - start_time;
-    average_time = average_value(time_counted);
-    Serial.println(average_time);
-    time_counted = 0;
+    start_time_sensor = millis();
+    start_time_average = millis();
+  } 
+  else if (sensor_state == HIGH) {
+    stop_time_sensor = millis();
+    stop_time_average = millis();
+    time_counted = stop_time_sensor - start_time_sensor;
   }
-  delay(50);
+
+  if ((stop_time_average - start_time_average) < 3000) {
+    NumReadings++;
+    Readings = Readings + time_counted;
+  } 
+  else if ((stop_time_average - start_time_average) > 3000) {
+    Average = Readings / NumReadings;
+    //Serial.println(Average);
+    Serial.println(start_time_average);
+    Serial.println(stop_time_average);
+    //start_time_average = 0;
+    //stop_time_average = 0;
+    NumReadings = 0;
+    Readings = 0;
+  }
+
+  delay(100);
 }
 
 
