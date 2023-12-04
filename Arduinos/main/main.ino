@@ -1,22 +1,18 @@
-// Import required libraries
+
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <WiFiClientSecure.h>
-WiFiClientSecure client;
-// Define the pins for rear and front wheel speed sensors
-const int rearSensorPin = 2;  // Use the appropriate pin number
-const int frontSensorPin = 3; // Use the appropriate pin number
 
-// Define the pin for the rear motor
-const int rearMotorPin1 = 4;  // Use the appropriate pin number
+//tcs
+/*
+int sensor_pin = 2;
+const int enablePin = 9;   // PWM pin connected to ENA on the L298N
+const int in1Pin = 8;      // Input 1 pin connected to IN1 on the L298N
+const int in2Pin = 7;      // Input 2 pin connected to IN2 on the L298N
+*/
+int mappedvalue = 0;
 
-// Set the target speed and speed difference thresholds
-int targetSpeed = 100; // Adjust to your specific needs
-const int speedDifferenceThreshold = 10; // Adjust as needed
-bool slipDetected = false;
-
-// Replace with your network credentials
+//sv
 const char* ssid = "Galaxy";
 const char* password = "esp32abc";
 
@@ -75,13 +71,14 @@ String processor(const String& var){
 void setup(){
   // Serial port for debugging purposes
   Serial.begin(115200);
-  
-  pinMode(rearSensorPin, INPUT);
-  pinMode(frontSensorPin, INPUT);
-  pinMode(rearMotorPin1, OUTPUT);
-  
-  analogWrite(output, sliderValue.toInt());
-
+  //tcs:
+  pinMode(9, OUTPUT);
+  /*
+  pinMode(in1Pin, OUTPUT);
+  pinMode(in2Pin, OUTPUT);
+  pinMode(sensor_pin, INPUT);
+*/
+  //sv:
   // Connect to Wi-Fi
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
@@ -113,47 +110,70 @@ void setup(){
     request->send(200, "text/plain", "OK");
   });
   
-  // Send a GET request
-  String request = String("GET ") + "/slider?value="+sliderValue + " HTTP/1.1\r\n" +
-                   "Host: " + server + "\r\n" +
-                   "Connection: close\r\n\r\n";
-  client.print(request);
-
-  // Wait for the server's response
-  while (client.connected()) {
-    String line = client.readStringUntil('\n');
-    if (line == "\r") {
-      break;
-    }
-  }
-
-  // Read the server's response
-  while (client.available()) {
-    String line = client.readStringUntil('\n');
-    Serial.println(line);
-  }
+  // Start server
+  server.begin();
 }
-}
+
+/*void speed_sensor() {
+  static unsigned long start_time_sensor = 0;
+  static unsigned long start_time_average = 0;
+  unsigned long stop_time_sensor;
+  unsigned long stop_time_average;
+  unsigned long time_counted;
+  int NumReadings;
+  unsigned long Readings;
+  unsigned long Average;
   
+  int sensor_state = digitalRead(sensor_pin);
+
+  if (sensor_state == LOW) {
+    start_time_sensor = millis();
+    start_time_average = millis();
+  } 
+  else if (sensor_state == HIGH) {
+    stop_time_sensor = millis();
+    stop_time_average = millis();
+    time_counted = stop_time_sensor - start_time_sensor;
+  }
+
+  if ((stop_time_average - start_time_average) < 3000) {
+    NumReadings++;
+    Readings = Readings + time_counted;
+  } 
+  else if ((stop_time_average - start_time_average) > 3000) {
+    Average = Readings / NumReadings;
+    //Serial.println(Average);
+    //start_time_average = 0;
+    //stop_time_average = 0;
+    NumReadings = 0;
+    Readings = 0;
+  }
+
+  delay(100);
+}
+
+void motors() {
+  //int throtle = 200;// = Serial.parseInt(); //Parseint tarda mucho
+  //int pwmValue = map(throtle, 0, 100, 0, 255);
+  // Set the motor speed
+  int sliderValueint = sliderValue.toInt();
+  mappedvalue = map(sliderValueint, -100, 0, 1, 255);
+  if(mappedvalue > 0){
+    analogWrite(enablePin, mappedvalue);
+    digitalWrite(in1Pin, HIGH);
+    digitalWrite(in2Pin, HIGH);
+  }
+  if(mappedvalue == 1){
+    analogWrite(enablePin, mappedvalue);
+    digitalWrite(in1Pin, LOW);
+    digitalWrite(in2Pin, LOW);
+  }
+
+  //Serial.println(throtle);  
+}
+*/
 void loop() {
   Serial.println(sliderValue);
-  
-  // Read rear and front wheel speed sensor values
-  int rearSpeed = analogRead(rearSensorPin);
-  int frontSpeed = analogRead(frontSensorPin);
-
-  // Calculate the speed difference between the rear and front wheels
-  int speedDifference = frontSpeed - rearSpeed;
-
-  // Determine the motor speed based on the speed difference
-  int rearMotorSpeed = targetSpeed + speedDifference;
-
-  // Ensure motor speed is within a valid range (0-255)
-  rearMotorSpeed = constrain(rearMotorSpeed, 0, 255);
-
-  // Control the rear motor
-  analogWrite(rearMotorPin1, rearMotorSpeed);
-
-  // Check for slip
-  slipDetected = (abs(speedDifference) > speedDifferenceThreshold);
+  //speed_sensor();
+  //motors();
 }
