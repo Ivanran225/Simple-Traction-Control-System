@@ -1,4 +1,5 @@
-int Sum = 0;
+int Sum_throtle = 0;
+int Sum_FW = 0;
 int avg_i_throtle = 0;
 int avg_i_FW = 0;
 int avg_i_RW = 0;
@@ -34,28 +35,31 @@ void speed_sensor() {
 
   if (sensor_state == LOW) {
     start_time_sensor = millis();
-    start_time_average = millis();
+    delay(10);
   } 
   else if (sensor_state == HIGH) {
     stop_time_sensor = millis();
     time_counted = stop_time_sensor - start_time_sensor;
-  }
-  
-  int iterations = 40;
-  if (avg_i_FW < iterations) {
-    int Analog = analogRead(A0);
-    Sum = Sum + Analog;   // Sum for averaging
-    avg_i_FW++;
     delay(10);
   }
-  if (avg_i_FW == iterations) {
-     int Average = Sum / iterations;
-     Serial.println(Average);
-     Sum = 0;
-     avg_i_FW = 0;
-     delay(10);
-  }
-}
+  if (time_counted > 0) {
+    //Serial.println(time_counted);
+    
+    int iterations = 3;
+    if (avg_i_FW < iterations) {
+      Sum_FW = Sum_FW + time_counted;   // Sum for averaging
+      avg_i_FW++;
+      delay(10);
+    }
+    if (avg_i_FW == iterations) {
+       int Average = Sum_FW / iterations;
+       Serial.println(Average);
+       Sum_FW = 0;
+       avg_i_FW = 0;
+       delay(10);
+    }
+    
+   }
   delay(10);
 }
 
@@ -152,14 +156,14 @@ void throtle_imput() {
   int iterations = 40;
   if (avg_i_throtle < iterations) {
     int Analog = analogRead(A0);
-    Sum = Sum + Analog;   // Sum for averaging
+    Sum_throtle = Sum_throtle + Analog;   // Sum for averaging
     avg_i_throtle++;
     delay(10);
   }
   if (avg_i_throtle == iterations) {
-     int Average = Sum / iterations;
-     Serial.println(Average);
-     Sum = 0;
+     int Average = Sum_throtle / iterations;
+     //Serial.println(Average);
+     Sum_throtle = 0;
      avg_i_throtle = 0;
      delay(10);
   }
