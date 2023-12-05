@@ -45,7 +45,7 @@ void speed_sensor() {
   if (time_counted > 0) {
     //Serial.println(time_counted);
     
-    int iterations = 3;
+    int iterations = 5;
     if (avg_i_FW < iterations) {
       Sum_FW = Sum_FW + time_counted;   // Sum for averaging
       avg_i_FW++;
