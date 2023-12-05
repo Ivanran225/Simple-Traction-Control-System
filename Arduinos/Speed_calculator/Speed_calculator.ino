@@ -1,8 +1,12 @@
+int Sum = 0;
+int avg_i_throtle = 0;
+int avg_i_FW = 0;
+int avg_i_RW = 0;
+
 int sensor_pin = 2;
 const int enablePin = 9;   // PWM pin connected to ENA on the L298N
 const int in1Pin = 8;      // Input 1 pin connected to IN1 on the L298N
 const int in2Pin = 7;      // Input 2 pin connected to IN2 on the L298N
-
 //smoth
 const unsigned long interval = 1000;  // 1 second in milliseconds
 unsigned long previousMillis = 0;
@@ -21,11 +25,8 @@ void setup() {
 
 void speed_sensor() {
   static unsigned long start_time_sensor = 0;
-  static unsigned long start_time_average = 0;
   unsigned long stop_time_sensor;
-  unsigned long stop_time_average;
   unsigned long time_counted;
-  int NumReadings;
   unsigned long Readings;
   unsigned long Average;
   
@@ -37,26 +38,25 @@ void speed_sensor() {
   } 
   else if (sensor_state == HIGH) {
     stop_time_sensor = millis();
-    stop_time_average = millis();
     time_counted = stop_time_sensor - start_time_sensor;
   }
-
-  if ((stop_time_average - start_time_average) < 3000) {
-    NumReadings++;
-    Readings = Readings + time_counted;
-  } 
-  else if ((stop_time_average - start_time_average) > 3000) {
-    Average = Readings / NumReadings;
-    //Serial.println(Average);
-    Serial.println(start_time_average);
-    Serial.println(stop_time_average);
-    //start_time_average = 0;
-    //stop_time_average = 0;
-    NumReadings = 0;
-    Readings = 0;
+  
+  int iterations = 40;
+  if (avg_i_FW < iterations) {
+    int Analog = analogRead(A0);
+    Sum = Sum + Analog;   // Sum for averaging
+    avg_i_FW++;
+    delay(10);
   }
-
-  delay(100);
+  if (avg_i_FW == iterations) {
+     int Average = Sum / iterations;
+     Serial.println(Average);
+     Sum = 0;
+     avg_i_FW = 0;
+     delay(10);
+  }
+}
+  delay(10);
 }
 
 
@@ -116,15 +116,7 @@ int average(int arr[], int size) {
   return sum / size;
 }
 
-const unsigned long interval = 1000;  // 1 second in milliseconds
-unsigned long previousMillis = 0;
-int* values = nullptr;  // Dynamic array to store values
-int valueCount = 0;
-
-void setup() {
-  Serial.begin(9600);
-}
-
+/*
 void loop() {
   unsigned long currentMillis = millis();
 
@@ -155,11 +147,25 @@ void loop() {
     }
   }
 }
-
-int average(int arr[], int size) {
-  int sum = 0;
-  for (int i = 0; i < size; i++) {
-    sum += arr[i];
+*/
+void throtle_imput() {
+  int iterations = 40;
+  if (avg_i_throtle < iterations) {
+    int Analog = analogRead(A0);
+    Sum = Sum + Analog;   // Sum for averaging
+    avg_i_throtle++;
+    delay(10);
   }
-  return sum / size;
+  if (avg_i_throtle == iterations) {
+     int Average = Sum / iterations;
+     Serial.println(Average);
+     Sum = 0;
+     avg_i_throtle = 0;
+     delay(10);
+  }
+}
+
+void loop() {
+  throtle_imput();
+  speed_sensor();
 }
