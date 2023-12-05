@@ -176,4 +176,7 @@ void loop() {
   Serial.println(sliderValue);
   //speed_sensor();
   //motors();
+  int sliderValueint = sliderValue.toInt();
+  int mappedvalue = map(sliderValueint, -100, 0, 1, 255);
+  analogWrite(2, mappedvalue);
 }

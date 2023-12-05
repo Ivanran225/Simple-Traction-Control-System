@@ -3,9 +3,11 @@ const int enablePin = 9;   // PWM pin connected to ENA on the L298N
 const int in1Pin = 8;      // Input 1 pin connected to IN1 on the L298N
 const int in2Pin = 7;      // Input 2 pin connected to IN2 on the L298N
 
-int index = 0;               // Index for the current reading
-int total = 0;               // Running total of readings
-int smoothedValue = 0;       // Smoothed sensor value
+//smoth
+const unsigned long interval = 1000;  // 1 second in milliseconds
+unsigned long previousMillis = 0;
+int* values = nullptr;
+int valueCount = 0;
 
 void setup() {
   Serial.begin(9600);  // Initialize serial communication for debugging
@@ -106,7 +108,58 @@ void basora(){
 */
 }
 
+int average(int arr[], int size) {
+  int sum = 0;
+  for (int i = 0; i < size; i++) {
+    sum += arr[i];
+  }
+  return sum / size;
+}
+
+const unsigned long interval = 1000;  // 1 second in milliseconds
+unsigned long previousMillis = 0;
+int* values = nullptr;  // Dynamic array to store values
+int valueCount = 0;
+
+void setup() {
+  Serial.begin(9600);
+}
+
 void loop() {
-  speed_sensor();
-  motors();
+  unsigned long currentMillis = millis();
+
+  // Read the analog value (replace this with your actual sensor reading)
+  int analogValue = analogRead(A0);
+
+  // Simulate values being received every 100 milliseconds for 10 seconds
+  if (currentMillis - previousMillis >= 100) {
+    previousMillis = currentMillis;
+
+    // Add the analog value to the array
+    values = (int*)realloc(values, (valueCount + 1) * sizeof(int));
+    values[valueCount] = analogValue;
+    valueCount++;
+
+    // Check if 1 second has passed
+    if (currentMillis >= interval) {
+      // Calculate the average and print it
+      int averageValue = average(values, valueCount);
+      Serial.print("Average value for the last 1 second: ");
+      Serial.println(averageValue);
+
+      // Reset values and counter for the next second
+      free(values);
+      values = nullptr;
+      valueCount = 0;
+      previousMillis = currentMillis;
+    }
+  }
+}
+
+int average(int arr[], int size) {
+  int sum = 0;
+  for (int i = 0; i < size; i++) {
+    sum += arr[i];
+  }
+  return sum / size;
 }
