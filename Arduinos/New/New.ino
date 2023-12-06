@@ -85,11 +85,13 @@ void loop() {
     lastTriggerTime = millis();
   }
     
-  if(abs(speeddiff) > 0.5){
+  if(averageRPM_RW > 1.5 * averageRPM_FW){
     throtleValue = 1;
     Serial.println("Slip!!!");
     speeddiff = 0;
-    }
+    averageRPM_RW = 0;
+    averageRPM_FW = 0;
+  }
 /*
 for(int i = 0; i < 100; i++){
     numReadingsRW = 0; // number of readings taken
