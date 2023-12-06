@@ -8,12 +8,12 @@ bool prevState = HIGH;
 
 void setup() {
   attachInterrupt(digitalPinToInterrupt(3), sensorTriggered, FALLING);
-  attachInterrupt(digitalPinToInterrupt(3), sensorTriggered2, RISING);
+  //attachInterrupt(digitalPinToInterrupt(3), sensorTriggered2, RISING);
   Serial.begin(9600);
   pinMode(3, INPUT);
 }
 void motors() {
-  int throtleValue = 50;// = Serial.parseInt(); //Parseint tarda mucho
+  int throtleValue = 100;// = Serial.parseInt(); //Parseint tarda mucho
   //int pwmValue = map(throtle, 0, 100, 0, 255);
   // Set the motor speed
   if(throtleValue > 0){
@@ -29,13 +29,18 @@ void motors() {
   //Serial.println(throtle);  
 }
 void loop() {
-  
   if (millis() - lastTriggerTime >= samplePeriod) {
     periods++;
-    total += numReadings;
-    averageRPM = total / periods;
-    //Serial.println(averageRPM);
-    numReadings = 0;
+    totalFW += numReadingsFW;
+    totalRW += numReadingsRW;
+    averageRPM_FW = totalFW / periods;
+    averageRPM_RW = totalRW / periods;
+    Serial.println("Front Wheel Speed: ");
+    Serial.println(averageRPM_FW);
+    Serial.println("Rear Wheel Speed: ");
+    Serial.println(averageRPM_RW);
+    numReadingsFW = 0;
+    numReadingsRW = 0;
     lastTriggerTime = millis();
   }
   
@@ -43,15 +48,14 @@ void loop() {
   motors();
 }
 
-void sensorTriggered() {
-  if(prevState == HIGH){
-    numReadings++;  
-  }
-  Serial.println("T1");
-  prevState = LOW;
-}
+volatile unsigned long lastTriggeredTime = 0;
+const unsigned long delayTime = 300; // delay time in milliseconds
 
-void sensorTriggered2() {
-  prevState = HIGH;
-  Serial.println("T2");
+void sensorTriggered() {
+  unsigned long currentMillis = millis();
+  if (currentMillis - lastTriggeredTime >= delayTime) {
+    numReadingsFW++;
+    numReadingsRW++;  
+    lastTriggeredTime = currentMillis;
+  }
 }
