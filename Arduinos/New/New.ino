@@ -41,7 +41,7 @@ void throtle_imput() {
     //Serial.println(Average);
     throtleValue = map(Average, 7, 650, 0, 255);
     //Serial.print("Throtle: ");
-    Serial.println(throtleValue);
+    //Serial.println(throtleValue);
     Sum_throtle = 0;
     avg_i_throtle = 0;
     delay(10);
@@ -60,7 +60,7 @@ void motors() {
     digitalWrite(8, LOW);
 
   }
-
+  
   //Serial.println(throtle);  
 }
 void loop() {
@@ -75,23 +75,34 @@ void loop() {
     Serial.println(averageRPM_FW);
     Serial.println("Rear Wheel Speed: ");
     Serial.println(averageRPM_RW);
-    speeddiff = averageRPM_RW - averageRPM_FW;
+    speeddiff = averageRPM_FW - averageRPM_RW;
+    Serial.println(abs(speeddiff));
     numReadingsFW = 0;
     numReadingsRW = 0;
-    totalFW = totalFW / 0.5;
-    totalRW = totalRW / 0.5;
+    totalFW = totalFW * 0.5;
+    totalRW = totalRW * 0.5;
     
     lastTriggerTime = millis();
   }
-    Serial.println(speeddiff);
-  if(speeddiff > 0.2){
+    
+  if(abs(speeddiff) > 0.5){
     throtleValue = 1;
     Serial.println("Slip!!!");
     speeddiff = 0;
     }
+/*
+for(int i = 0; i < 100; i++){
+    numReadingsRW = 0; // number of readings taken
+    numReadingsFW = 0;
+    totalFW = 0; // total of readings
+    totalRW = 0;
+    averageRPM_FW = 0; // average RPM
+    averageRPM_RW = 0;
+}
+*/
   //Serial.println(digitalRead(3));
   motors();
-  delay(500);
+  //delay(500);
   throtle_imput();
 }
 
