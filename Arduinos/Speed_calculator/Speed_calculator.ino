@@ -1,16 +1,15 @@
-float revolutionsFW=0;
-int rpmFW=0; // max value 32,767 16 bit
-long  startTimeFW=0;
-long  elapsedTimeFW;
+static unsigned long start_time_sensor = -1;
+unsigned long stop_time_sensor;
+unsigned long time_counted = -1;
+unsigned long Readings;
+unsigned long Average;
 
-//////
-
-int Sum_throttle = 0;
+int Sum_throtle = 0;
 int Sum_FW = 0;
-int avg_i_throttle = 0;
+int avg_i_throtle = 0;
 int avg_i_FW = 0;
 int avg_i_RW = 0;
-int throttleValue = 0;
+int throtleValue = 0;
 int FW_sensor_pin = 2;
 int RW_sensor_pin = 3;
 const int enablePin = 9;   // PWM pin connected to ENA on the L298N
@@ -30,48 +29,93 @@ void setup() {
   pinMode(in2Pin, OUTPUT);
   pinMode(FW_sensor_pin, INPUT);
   pinMode(RW_sensor_pin, INPUT);
-  pinMode(3, INPUT_PULLUP);           // set pin to input
-  pinMode(2, INPUT_PULLUP);           // set pin to input
+
+}
+
+void FW_speed_sensor() {
+  static unsigned long start_time_sensor = 0;
+  unsigned long stop_time_sensor;
+  unsigned long time_counted;
+  unsigned long Readings;
+  unsigned long Average;
+  
+  int sensor_state = digitalRead(FW_sensor_pin);
+
+  if (sensor_state == LOW) {
+    start_time_sensor = millis();
+    delay(50);
+  } 
+  else if (sensor_state == HIGH) {
+    stop_time_sensor = millis();
+    time_counted = stop_time_sensor - start_time_sensor;
+    //Serial.println(time_counted);
+    delay(50);
+  }
+  if (time_counted > 0) {
+    //Serial.println(time_counted);
+    int iterations = 10;
+    if (avg_i_FW < iterations) {
+      Sum_FW = Sum_FW + time_counted;   // Sum for averaging
+      avg_i_FW++;
+      delay(10);
+    }
+    if (avg_i_FW == iterations) {
+      int Average = Sum_FW / iterations;
+
+      Serial.print("Front wheel speed: ");
+      Serial.println(Average);
+
+      Sum_FW = 0;
+      avg_i_FW = 0;
+    }
+   }
+  delay(10);
+}
+
+
+void RW_speed_sensor() {
+  int sensor_state = digitalRead(RW_sensor_pin);
+
+  if (sensor_state == LOW && start_time_sensor == -1) {
+    start_time_sensor = millis();
+  } 
+  else if (sensor_state == HIGH && start_time_sensor == -1) {
+    stop_time_sensor = millis();
+    time_counted = stop_time_sensor - start_time_sensor;
+    start_time_sensor = -1;  
+  }
+  
+  if (time_counted != -1) {
+    //Serial.println(time_counted);
+    int iterations = 10;
+    Sum_FW = Sum_FW + time_counted;   // Sum for averaging
+    avg_i_FW++;
+    time_counted = -1;
+    if (avg_i_FW == iterations) {
+      int Average = Sum_FW / iterations;
+      Serial.println(Average);
+      Sum_FW = 0;
+      avg_i_FW = 0;
+    }
+ }
 }
 
 void motors() {
-  //int throttle = 200;// = Serial.parseInt(); //Parseint tarda mucho
-  //int pwmValue = map(throttle, 0, 100, 0, 255);
+  int throtleValue = 200;// = Serial.parseInt(); //Parseint tarda mucho
+  //int pwmValue = map(throtle, 0, 100, 0, 255);
   // Set the motor speed
-  if(throttleValue > 0){
-    analogWrite(enablePin, throttleValue);
+  if(throtleValue > 0){
+    analogWrite(enablePin, throtleValue);
     digitalWrite(in1Pin, HIGH);
     digitalWrite(in2Pin, HIGH);
   }
-  if(throttleValue == 1){
-    analogWrite(enablePin, throttleValue);
+  if(throtleValue == 1){
+    analogWrite(enablePin, throtleValue);
     digitalWrite(in1Pin, LOW);
     digitalWrite(in2Pin, LOW);
   }
 
-  //Serial.println(throttle);  
-}
-
-void interruptFunctionFW() //interrupt service routine
-{  
-  revolutionsFW++;
-}
-void FWSPEED() {
-revolutionsFW=0; rpmFW=0;
-startTimeFW=millis();         
-attachInterrupt(digitalPinToInterrupt(2),interruptFunction,RISING);
-delay(3000);
-detachInterrupt(3);                
-
-//now let's see how many counts we've had from the hall effect sensor and calc the RPM
-elapsedTimeFW=millis()-startTimeFW;     //finds the time, should be very close to 1 sec
-
-if(revolutionsFW>0)
-{
-  rpmFW=(max(1, revolutionsFW) * 60000) / elapsedTimeFW;        //calculates rpmFW
-}
-String outMsg = String("RPM :") + rpmFW;
-Serial.println(outMsg);
+  //Serial.println(throtle);  
 }
 
 
@@ -83,28 +127,30 @@ int average(int arr[], int size) {
   return sum / size;
 }
 
-void throttle_imput() {
-  int iterations = 20;
-  if (avg_i_throttle < iterations) {
+void throtle_imput() {
+  int iterations = 40;
+  if (avg_i_throtle < iterations) {
     int Analog = analogRead(A0);
-    Sum_throttle = Sum_throttle + Analog;   // Sum for averaging
-    avg_i_throttle++;
+    Sum_throtle = Sum_throtle + Analog;   // Sum for averaging
+    avg_i_throtle++;
     delay(10);
   }
-  if (avg_i_throttle == iterations) {
-    int Average = Sum_throttle / iterations;
+  if (avg_i_throtle == iterations) {
+    int Average = Sum_throtle / iterations;
     //Serial.println(Average);
-    throttleValue = map(Average, 20, 700, 0, 255);
-    Serial.print("Throttle: ");
-    Serial.println(throttleValue);
-    Sum_throttle = 0;
-    avg_i_throttle = 0;
+    throtleValue = map(Average, 7, 650, 0, 255);
+    Serial.print("Throtle: ");
+    Serial.println(throtleValue);
+    Sum_throtle = 0;
+    avg_i_throtle = 0;
     delay(10);
   }
 }
 void loop() {
-  throttle_imput();
+  //throtle_imput();
   motors();
+  //FW_speed_sensor();
+  RW_speed_sensor();
 }
 /*
        if(Average > 0){
