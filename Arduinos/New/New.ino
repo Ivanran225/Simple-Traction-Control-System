@@ -41,7 +41,7 @@ void throtle_imput() {
     //Serial.println(Average);
     throtleValue = map(Average, 7, 650, 0, 255);
     //Serial.print("Throtle: ");
-    //Serial.println(throtleValue);
+    Serial.println(throtleValue);
     Sum_throtle = 0;
     avg_i_throtle = 0;
     delay(10);
@@ -78,16 +78,20 @@ void loop() {
     speeddiff = averageRPM_RW - averageRPM_FW;
     numReadingsFW = 0;
     numReadingsRW = 0;
+    totalFW = totalFW / 0.5;
+    totalRW = totalRW / 0.5;
+    
     lastTriggerTime = millis();
   }
-  if(speeddiff > 0.1){
-    throtleValue = 0;
-    delay(1000);
+    Serial.println(speeddiff);
+  if(speeddiff > 0.2){
+    throtleValue = 1;
     Serial.println("Slip!!!");
     speeddiff = 0;
     }
   //Serial.println(digitalRead(3));
   motors();
+  delay(500);
   throtle_imput();
 }
 

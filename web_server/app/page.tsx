@@ -30,7 +30,7 @@ export default function Button() {
     }
   };
   return (
-    <div className="button-container" style={{ backgroundColor:'#000000'}}>
+    <div className="button-container" style={{ backgroundColor:'#8FDECB'}}>
       <div className="button-box">
         <button className= "button" style={{ color: '#FFA500' }} onClick={handleButton1Click}>
           SHALOM
